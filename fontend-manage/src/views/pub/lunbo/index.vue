@@ -6,16 +6,19 @@
           <span>{{ $t('lunbo.total') }} {{ lunboList.length }} 条</span>
       </el-form>
       <div class="lunbo-content">
-        <el-table :data="lunboList" border>
+        <el-table
+          :data="lunboList"
+          border
+          stripe>
             <el-table-column 
             :label="$t('lunbo.table.id.name')"
             type="index" 
             width="55"
           />
-      <!-- <template scope="scope"> -->
+            <template slot-scope="scope">
             <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
-            <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
-          <!-- </template> -->
+            <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span>
+            </template>
             <el-table-column
               :label="$t('lunbo.table.lunbo_name.name')"
               prop="lunbo_name"
