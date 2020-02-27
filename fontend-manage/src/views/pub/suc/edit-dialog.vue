@@ -81,7 +81,7 @@ export default {
             // console.log('enter then')
             // console.log(this)
             this.$emit('OnConfirm', this.item)
-            this.visable = false// 关闭dialog弹窗后重置form，不能在这里重置，函数执行完之后才把数据添加的父元素table中
+            this.visable = false
           })
         } else {
           console.log('error submit!!')

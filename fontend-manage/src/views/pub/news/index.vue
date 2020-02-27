@@ -112,11 +112,11 @@ export default {
     getinfolist () {
       const item = {
         id: '1',
-        news_img: '新闻部分内容',	// 首页竞赛新闻图片
-        news_title: '新闻部分内容',	// 首页竞赛新闻标题
-        news_intro: '新闻部分内容',	// 首页竞赛新闻简介
-        news_content: '新闻部分内容',	// 二级新闻公告竞赛新闻内容
-        news_time: '新闻部分内容',	// 二级新闻公告竞赛新闻时间
+        news_img: '新闻部分内容', // 首页竞赛新闻图片
+        news_title: '新闻部分内容', // 首页竞赛新闻标题
+        news_intro: '新闻部分内容', // 首页竞赛新闻简介
+        news_content: '新闻部分内容', // 二级新闻公告竞赛新闻内容
+        news_time: '新闻部分内容', // 二级新闻公告竞赛新闻时间
         notice_content: '新闻部分内容', // 二级新闻公告通知公告内容
         notice_time: '新闻部分内容'// 二级新闻公告通知公告时间
       }

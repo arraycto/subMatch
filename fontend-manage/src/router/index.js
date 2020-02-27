@@ -5,7 +5,7 @@ import {
   isEmpty
 } from "../utils/stringUtil.js"
 
-import pub from './pub.js';
+import pub from './pub.js'
 
 Vue.use(Router)
 
@@ -14,6 +14,11 @@ export const constantRoutes = [
   {
     path: '/',
     redirect: '/login'
+  },
+  {
+    path: '/register',
+    component: () => import('@/views/register/index'),
+    hidden: true
   },
   {
     path: '/login',
@@ -37,6 +42,7 @@ export const constantRoutes = [
   },
   {
     path: '/home',
+    name: 'home',
     component: () => import('@/views/index'),
     hidden: true,
     children: [].concat(pub) // 在这里引入注册模块的路由
@@ -80,4 +86,17 @@ export function resetRouter() {
 //   }
 //   next()
 // })
+
+// 未登陆的用户会被自动导航到login
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login' || to.path === '/register') {
+    next()
+    return
+  }
+  if (store.state.app.isLogin === 1) {
+    next()
+    return
+  }
+  next()
+})
 export default router

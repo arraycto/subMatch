@@ -53,10 +53,10 @@ export default {
     return {
       visable: false,
       item: {
-        // line_year: '',	//二级竞赛历程年份
-        // line_title: '',	//二级竞赛大赛名称
-        // line_img: '',	//二级竞赛图片
-        // line_intro: '',	//二级竞赛简介
+        // line_year: '',//二级竞赛历程年份
+        // line_title: '',//二级竞赛大赛名称
+        // line_img: '',//二级竞赛图片
+        // line_intro: '',//二级竞赛简介
       },
       rules: {
         line_year: [

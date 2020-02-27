@@ -41,22 +41,23 @@
   </el-dialog>
 </template>
 <script>
+import axios from 'axios'
 export default {
   props: {
     title: {
       type: String,
-      default: "title"
+      default: 'title'
     }
   },
-  data() {
+  data () {
     return {
       visable: false,
       item: {},
       form: {
-        team_img: '', 	//二级团队建设图片
-        team_teacher: '',	//二级团队建设指导老师
-        team_person: '',	//二级团队成员
-        team_comment: '',	//二级团队项目评价
+        team_img: '', // 二级团队建设图片
+        team_teacher: '', // 二级团队建设指导老师
+        team_person: '', // 二级团队成员
+        team_comment: ''// 二级团队项目评价
       },
       rules: {
         team_img: [
@@ -76,44 +77,48 @@ export default {
   },
   methods: {
     open (item) {
-      this.visable = true;
+      this.visable = true
       if (item === undefined || item === null) {
-        this.item = {};
+        this.item = {}
       } else {
-        this.item = item;
-        this.type = this.item.type;
+        this.item = item
+        this.getTeamById()
       }
     },
-    submitForm(dataForm) {
-      console.log('用户提交了信息了');
-      console.log(this.$refs);
+    getTeamById () {
+      axios.get('/sub/team/findTeamById?team_id=' + this.item.team_id).then((res) => {
+        this.item = res.data.data
+      })
+    },
+    submitForm (dataForm) {
+      // console.log('用户提交了信息了')
+      // console.log(this.$refs)
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
-          this.$confirm("确认保存吗？", "询问", {
-            cancelButtonText: "取消",
-            cancelButtonClass: "cancelButton",
-            confirmButtonText: "确认",
+          this.$confirm('确认保存吗？', '询问', {
+            cancelButtonText: '取消',
+            cancelButtonClass: 'cancelButton',
+            confirmButtonText: '确认',
             lockScroll: false,
-            type: "warning"
+            type: 'warning'
           }).then(() => {
-            console.log('enter then');
-            console.log(this);
-            this.$emit("OnConfirm", this.item);
-            this.visable = false;
-          });
+            // console.log('enter then')
+            // console.log(this)
+            this.$emit('OnConfirm', this.item)
+            this.visable = false
+          })
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
 
-    resetForm(dataForm) {
+    resetForm (dataForm) {
       this.$nextTick(() => {
-        this.$refs[dataForm].clearValidate();
+        this.$refs[dataForm].clearValidate()
       })
-      this.visable = false;
-      this.totaltime = '';// 这个不是表单元素，而是通过js脚本计算出的，就单独重置
+      this.visable = false
     }
 
   }

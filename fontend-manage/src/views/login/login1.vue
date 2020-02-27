@@ -1,37 +1,52 @@
 <template>
   <div id="particlesId">
-    <h1 class="title">四川工商学院科研管理系统</h1>
+    <h1 class="title">科成学生助手系统</h1>
     <div class="login-warp">
-      <el-form :model="loginForm">
-        <el-form-item prop="username">
-          <i class="el-icon-user"></i>
-          <el-input
-            v-model="loginForm.username"
-            placeholder="用户名长度必须在6-16之间，且不能包含非法字符*#@" />
-        </el-form-item>
-        <el-form-item prop="password">
-          <i class="el-icon-key"></i>
-          <el-input
-            v-model="loginForm.password"
-            show-password
-            placeholder="密码长度必须在6-16之间，且必须包含数字和字母" />
-        </el-form-item>
-        <el-form-item prop="checkcode">
-          <i class="el-icon-folder-checked"></i>
-          <el-input
-            v-model="loginForm.checkcode"
-            placeholder="请输入验证码"
-            @keydown.enter.native="login('loginForm')">
-          </el-input>
-          <span class="checkcode" @click="createCode">{{ ckcode }}</span>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="login('loginForm')">登录</el-button>
-        </el-form-item>
-        <div class="login-foot">
-          <a @click="register">立即注册</a>
-          <a href="" class="pwd">忘记密码？</a>
-        </div>
+      <el-form ref="loginForm" :model="loginForm" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="用户名:" prop="username">
+              <el-input
+                prefix-icon="el-icon-user"
+                v-model="loginForm.username"
+                placeholder="用户名长度必须在6-16之间，且不能包含非法字符*#@" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="密码:" prop="password">
+              <el-input
+                prefix-icon="el-icon-key"
+                v-model="loginForm.password"
+                placeholder="密码长度必须在6-16之间，且必须包含数字和字母"
+                show-password
+               />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item>
+              <el-button
+                style="width:100%;"
+                type="success"
+                @click="login('loginForm')"
+              >登 录</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item>
+              <el-button
+              style="width:100%;"
+              type="success"
+              @click="register"
+              >注 册</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
     </div>
   </div>
@@ -74,20 +89,16 @@ export default {
     return {
       loginForm: {
         username: '',
-        password: '',
-        checkcode: ''
+        password: ''
       },
-      ckcode: '',
       rules: {
         username: [{ required: true, validator: validateNumber, trigger: 'blur' }],
-        password: [{ required: true, validator: validatePass, trigger: 'blur' }],
-        checkcode: [{ require: true, message: '请输入验证码', trigger: 'blur' }]
+        password: [{ required: true, validator: validatePass, trigger: 'blur' }]
       }
     }
   },
   mounted () {
     this.init()
-    this.createCode()
   },
   methods: {
     init () {
@@ -107,15 +118,30 @@ export default {
           axios.get('json/login/direct?number=' + username + '&password=' + password).then(res => {
             console.log(' login success')
             console.log(res.data)
-            console.log(res.data.data)
             if (res.data.code === 0) {
               this.$message({
                 type: 'success',
                 message: '登录成功'
               })
-              this.$router.push({name: 'home'})
-              const user = res.data.data.userInfo.username
+              this.$router.push({name: 'information'})
+              const userData = res.data.data
+              const user = userData.number
+              // sessionStorage.setItem('username', user) // 把登录成功的用户名放入sessionStorage
+              // this.$store.dispatch('setUser', user) // 把用户名放入vuex
+              // ...mapActions('user/setUser',res.data.number)
+              // setUser(res.data.number)
               sessionStorage.setItem('number', user)
+              sessionStorage.setItem('headImg', userData.headImg)
+              sessionStorage.setItem('nickName', userData.nickName)
+              sessionStorage.setItem('readName', userData.readName)
+              sessionStorage.setItem('sex', userData.sex)
+              sessionStorage.setItem('birthday', userData.birthday)
+              sessionStorage.setItem('telPhone', userData.telPhone)
+              sessionStorage.setItem('email', userData.email)
+              sessionStorage.setItem('weiXin', userData.weiXin)
+              sessionStorage.setItem('qq', userData.qq)
+              sessionStorage.setItem('introduce', userData.introduce)
+              sessionStorage.setItem('depict', userData.role.depict)
               this.setUser({ user })
             } else {
               this.$message({
@@ -129,16 +155,6 @@ export default {
         }
       })
     },
-    createCode () { // 前端生成验证码
-      let code = ''
-      let codeLength = 4 // 验证码的长度
-      let random = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z') // 随机数
-      for (let i = 0; i < codeLength; i++) { // 循环操作
-        let index = Math.floor(Math.random() * 36) // 取得随机数的索引（0~35）
-        code += random[index] // 根据索引取得随机数加到code上
-      }
-      this.ckcode = code // 把code值赋给验证码
-    },
     ...mapActions('user/', ['setUser'])
   }
 }
@@ -150,7 +166,6 @@ export default {
   min-height: 100vh;
   display: flex;
   background-color: #000000;
-  // background-color: rgb(49,143,254);
 }
 .particles-js-canvas-el{
   height: 100vh!important;
@@ -169,38 +184,20 @@ export default {
   transform: translate(-50%, -50%);
   padding: 50px 0;
   padding-right: 30px;
-  width: 450px;
+  width: 500px;
   background-color: rgba(49,143,254,.4);
   border-radius: 10px;
   box-shadow: 0px 0px 5px lavenderblush;
-}
-.el-button{
-  width: 90%;
-  margin-left: 45px;
-  font-size: 14px;
-  padding: 10px 0;
-}
-.el-icon-user, .el-icon-key, .el-icon-folder-checked{
-  color: #fff;
-  font-size: 35px;
-  padding: 0 5px;
-}
-.checkcode{
-  color: #fff;
+  .el-form
+    .el-row:nth-child(1),
+    .el-row:nth-child(2) {
+    margin-bottom: 20px;
+  }
 }
 .login-foot{
   display: flex;
   justify-content: space-between;
   margin-left: 45px;
-}
-.login-foot a{
   color: #fff;
-  text-decoration: none;
-}
-</style>
-<style lang="">
-.el-form-item__content{
-  display: flex;
-  margin-bottom: 15px;
 }
 </style>

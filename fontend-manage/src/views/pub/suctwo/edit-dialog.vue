@@ -112,7 +112,6 @@ export default {
         }
       })
     },
-
     resetForm (dataForm) {
       this.$nextTick(() => {
         this.$refs[dataForm].clearValidate()

@@ -95,7 +95,6 @@ export default {
       loading: true,
       focusedRecord: {},
       multipleSelection: [], // 批量删除
-      newstwoList: [],
       page: {
         currentPage: 0, // 当前页
         pageSize: 0, // 每页条数

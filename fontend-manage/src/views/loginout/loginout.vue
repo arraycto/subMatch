@@ -1,6 +1,6 @@
 <template />
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex'
 // import wxvar from '../../api/global variable';
 // import { wxlogin } from '../../api/qywxlogapi';
 // import '@/api/wwlogin';
@@ -19,8 +19,8 @@ export default {
         var code = str1.split('&')[0]
         if (code != null) {
           const para = { code: code }
-          wxlogin(para).then(res => {
-            this.relog(res);
+          wxlogin (para).then(res => {
+            this.relog(res)
           })
         }
       }
@@ -30,7 +30,7 @@ export default {
       const uname = res.data[0].username
       const utype = res.data[0].usertype
       this.setUserdata({ token, uname, utype })
-      this.$router.replace('/login')
+      this.$router.replace('/home')
     },
     ...mapActions('user/', ['setUserdata'])
   }

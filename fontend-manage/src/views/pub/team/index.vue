@@ -11,15 +11,25 @@
         <el-form-item>
           <el-button type="success" icon="el-icon-search" @click="onSearch">{{ $t("team.searchForm.searchdata.name") }}</el-button>
           <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("team.button.addone") }}</el-button>
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deleteTeam">删除所选</el-button>
           <el-button type="warning" icon="el-icon-plus" @click="handleDownload">{{ $t("team.button.bulkImport") }}</el-button>
           <span>{{ $t('team.total') }} {{ teamList.length }} 条</span>
         </el-form-item>
       </el-form>
       <div class="team-content">
-        <el-table :data="teamList" border @cell-mouse-enter="mouseEnter">
-            <el-table-column 
-            :label="$t('team.table.id.name')" 
-            type="index" 
+        <el-table
+          :data="teamList"
+          border
+          stripe
+          height="80%"
+          v-loading="loading"
+          element-loading-text="拼命加载中"
+          @cell-mouse-enter="mouseEnter"
+          @selection-change="handleSelectionChange">
+          <el-table-column type="selection" align="center" />
+          <el-table-column
+            :label="$t('team.table.id.name')"
+            type="index"
             width="55"
           />
       <!-- <template scope="scope"> -->
@@ -27,26 +37,26 @@
             <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
           <!-- </template> -->
             <el-table-column
-              :label="$t('team.table.team_img.name')" 
+              :label="$t('team.table.team_img.name')"
               prop="team_img"
             />
             <el-table-column
-              :label="$t('team.table.team_teacher.name')" 
+              :label="$t('team.table.team_teacher.name')"
               prop="team_teacher"
             />
             <el-table-column
-              :label="$t('team.table.team_person.name')" 
+              :label="$t('team.table.team_person.name')"
               prop="team_person"
             />
             <el-table-column
-              :label="$t('team.table.team_comment.name')" 
+              :label="$t('team.table.team_comment.name')"
               prop="team_comment"
             />
             <el-table-column
-              :label="$t('team.table.operate')" 
+              :label="$t('team.table.operate')"
               prop="operation"
               align="center"
-              width="200"
+              width="100"
             >
               <template>
                 <el-button
@@ -56,96 +66,157 @@
                   @click.stop="$refs.updateDialog.open(focusedRecord)"
                 >修改</el-button>
               </template>
-              <template>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  class="el-icon-delete"
-                  @click.stop="deleteTeam()"
-                >删除</el-button>
-              </template>
             </el-table-column>
         </el-table>
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <add-dialog ref="addDialog" title="添加团队建设信息" @OnConfirm="(item)=>addOne(item)" />
+        <add-dialog ref="updateDialog" title="修改团队建设信息" @OnConfirm="(item)=>updateOne(item)" />
       </div>
-      <div class="paginationDad">
-        <page-component :total="teamList.length" @pageChange="(item)=>handlePageChange(item)" />
-      </div>
-      <add-dialog ref="addDialog" title="添加团队建设信息" @OnConfirm="(item)=>addOne(item,'post')" />
-      <add-dialog ref="updateDialog" title="修改团队建设信息" @OnConfirm="(item)=>addOne(item,'post')" />
     </div>
   </div>
 </template>
 <script>
-// import { getteamList, getclientlist } from "@/api/deliver";
-import AddDialog from "./edit-dialog";
+import axios from 'axios'
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       searchForm: {
         team_teacher: ''
       },
       teamList: [],
-      focusedRecord: {},
       addForm: {
       },
+      loading: true,
+      focusedRecord: {},
+      multipleSelection: [], // 批量删除
+      page: {
+        currentPage: 0, // 当前页
+        pageSize: 0, // 每页条数
+        totalSize: 0, // 总条数
+        totalPage: 0 // 总页数
+      }
     }
   },
-  mounted() {
-    this.getteamList();
+  mounted () {
+    this.getteamList()
   },
   methods: {
-    addOne(data, method) {
-      console.log(data, method);
-      this.teamList.push(data)
-      // 发送添加请求
+    handleSelectionChange (val) {
+      this.multipleSelection = val
     },
-    handleDownload() {
-      
-    },
-    mouseEnter(data) {
+    mouseEnter (data) {
       // console.log(data);//这里可以打印每一行的内容
       // 点击编辑
       this.dialogFormVisible = true // 显示弹框
       // let _row = row
       // 将每一行的数据赋值给dialog弹框
-      this.focusedRecord = Object.assign({}, data);// focusedRecord是弹框的data
+      this.focusedRecord = Object.assign({}, data)// focusedRecord是弹框的data
     },
     // 获取记录日志
-    getteamList() {
-      const item = {
-        team_img: '二级团队建设内容。。。',
-        team_teacher: '二级团队建设内容。。。',
-        team_person: '二级团队建设内容。。。',
-        team_comment: '二级团队建设内容。。。'
-      };
+    getteamList () {
+      // const item = {
+      //   team_img: '二级团队建设内容。。。',
+      //   team_teacher: '二级团队建设内容。。。',
+      //   team_person: '二级团队建设内容。。。',
+      //   team_comment: '二级团队建设内容。。。'
+      // }
 
-      for (let i = 0; i < 5; i++) {
-        this.teamList.push(item)
-      }
+      // for (let i = 0; i < 5; i++) {
+      //   this.teamList.push(item)
+      // }
+
+      axios.get('/sub/team/findAllTeam?page=1&pageSize=10').then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.teamList = res.data.data.list
+        // console.log(res.data.data.list)
+        this.loading = false
+      })
     },
-    onSearch() {
-      console.log(this.searchForm);
+    onSearch () {
+      console.log(this.searchForm)
     // 发送搜索请求
     },
-    handlePageChange(item) {
-      console.log(item.pageSize, item.currentPage)
-      // 发送分页查询请求
+    addOne (item) {
+      axios.post('/sub/team/addTeam?team_img=' + item.team_img + '&team_teacher=' + item.team_teacher +
+      '&team_person=' + item.team_person + '&team_comment=' + item.team_comment + '&create_name=ly' + item.create_name +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '新增成功'
+          })
+        }
+        this.getteamList()
+      })
     },
-    //删除表格一条数据
-    deleteTeam() {
-      //发送删除请求
-      this.$confirm('确认删除吗？', '询问', {
-        cancelButtonText: '取消',
-        confirmButtonText: '确认',
-        lockScroll: false,
-        closeOnClickModal: false,
-        type: 'warning'
-      }).catch(() => { return false })
+    updateOne (item) {
+      axios.post('/sub/team/updateTeamInfo?team_id=' + item.team_id +
+      '&team_img=' + item.team_img + '&team_teacher=' + item.team_teacher +
+      '&team_person=' + item.team_person + '&team_comment=' + item.team_comment +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        }
+        this.getteamList()
+      })
+    },
+    handleDownload () {
+
+    },
+    handlePageChange (item) {
+      axios.get('/sub/team/findAllTeam?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.teamList = res.data.data.list
+      })
+    },
+    deleteTeam () {
+      if (this.multipleSelection.length) {
+        let ids = [] // 保存选中的数据的id
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          ids.push(this.multipleSelection[i].team_id)
+        }
+        this.$confirm('此操作将永久删除该数据，是否继续？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then((res) => {
+          axios.get('/sub/team/deleteTeamById?team_id=' + ids).then((res) => {
+            if (res.data.code === 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.getteamList()
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '至少选择一项'
+        })
+      }
     }
   }
 }

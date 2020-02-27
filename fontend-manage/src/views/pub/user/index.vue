@@ -16,9 +16,9 @@
       </el-form>
       <div class="user-content">
         <el-table :data="userList" border @cell-mouse-enter="mouseEnter">
-            <el-table-column 
-            :label="$t('user.table.id.name')" 
-            type="index" 
+            <el-table-column
+            :label="$t('user.table.id.name')"
+            type="index"
             width="55"
           />
       <!-- <template scope="scope"> -->
@@ -69,14 +69,14 @@
 </template>
 <script>
 // import { getuserList, getclientlist } from "@/api/deliver";
-import AddDialog from "./edit-dialog";
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       searchForm: {
         username: ''
@@ -87,52 +87,52 @@ export default {
       focusedRecord: {}
     }
   },
-  mounted() {
-    this.getuserList();
+  mounted () {
+    this.getuserList()
   },
   methods: {
-    addOne(data, method) {
-      console.log(data, method);
+    addOne (data, method) {
+      console.log(data, method)
       this.userList.push(data)
       // 发送添加请求
     },
-    mouseEnter(data) { 
+    mouseEnter (data) {
       // console.log(data);//这里可以打印每一行的内容
       // 点击编辑
       this.dialogFormVisible = true // 显示弹框
       // let _row = row
       // 将每一行的数据赋值给dialog弹框
-      this.focusedRecord = Object.assign({}, data);// focusedRecord是弹框的data
+      this.focusedRecord = Object.assign({}, data)// focusedRecord是弹框的data
     },
     // 获取记录日志
-    getuserList() {
+    getuserList () {
       const item = {
         password: '密码',
-        username: '用户名',
-      };
+        username: '用户名'
+      }
 
       for (let i = 0; i < 5; i++) {
         this.userList.push(item)
       }
     },
-    onSearch() {
-      console.log(this.searchForm);
+    onSearch () {
+      console.log(this.searchForm)
     // 发送搜索请求
     },
-    handlePageChange(item) {
+    handlePageChange (item) {
       console.log(item.pageSize, item.currentPage)
       // 发送分页查询请求
     },
-    //删除表格一条数据
-    deleteUser() {
-      //发送删除请求
+    // 删除表格一条数据
+    deleteUser () {
+      // 发送删除请求
       this.$confirm('确认删除吗？', '询问', {
         cancelButtonText: '取消',
         confirmButtonText: '确认',
         lockScroll: false,
         closeOnClickModal: false,
         type: 'warning'
-      }).catch(() => {return false})
+      }).catch(() => { return false })
     }
   }
 }

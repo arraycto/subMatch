@@ -67,7 +67,7 @@ export default {
             console.log(this)
             this.$emit('OnConfirm', this.item)
             this.visable = false
-          });
+          })
         } else {
           console.log('error submit!!')
           return false

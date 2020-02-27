@@ -13,7 +13,7 @@
           stripe>
             <el-table-column
             :label="$t('lunbo.table.id.name')"
-            type="index" 
+            type="index"
             width="55"
           />
             <template slot-scope="scope">

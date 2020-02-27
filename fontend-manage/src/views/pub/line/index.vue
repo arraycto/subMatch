@@ -125,9 +125,9 @@ export default {
       // const item = {
       //   id: '1',
       //   line_year: '二级竞赛历程内容。。。', //二级竞赛历程年份
-      //   line_title: '二级竞赛历程内容。。。',	//二级竞赛大赛名称
-      //   line_img: '二级竞赛历程内容。。。',	//二级竞赛图片
-      //   line_intro: '二级竞赛历程内容。。。',	//二级竞赛简介
+      //   line_title: '二级竞赛历程内容。。。',//二级竞赛大赛名称
+      //   line_img: '二级竞赛历程内容。。。',//二级竞赛图片
+      //   line_intro: '二级竞赛历程内容。。。',//二级竞赛简介
       // };
       // this.lineList.push(item)
       axios.get('/sub/line/findAllLine?page=1&pageSize=10').then((res) => {
@@ -173,7 +173,7 @@ export default {
     // 发送搜索请求
     },
     handlePageChange (item) {
-      console.log('111111', item)
+      console.log('分页查询请求', item)
       // 发送分页查询请求
       axios.get('/sub/line/findAllLine?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
         this.page.currentPage = res.data.data.currentPage
@@ -184,7 +184,7 @@ export default {
       })
     },
     handleDownload () {
-      
+      // 导出到excel
     },
     deleteLine () {
       if (this.multipleSelection.length) {
