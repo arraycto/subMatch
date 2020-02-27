@@ -1,7 +1,6 @@
 <template>
   <el-dialog id="edit-dialog" :title="title" :visible.sync="visable" :lock-scroll="false" center width="60%" top="5.5rem" :close-on-click-modal="false">
     <el-form ref="dataForm" :model="item" :rules="rules" label-width="120px">
-
       <el-row>
         <el-col :span="24">
           <el-form-item label="新闻时间:" prop="newstwo_time">
@@ -73,7 +72,7 @@ export default {
       })
     },
     submitForm (dataForm) {
-      console.log('用户提交了信息了')
+      // console.log('用户提交了信息了')
       this.item.newstwo_time = this.formateDate(this.item.newstwo_time)
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
@@ -84,8 +83,8 @@ export default {
             lockScroll: false,
             type: 'warning'
           }).then(() => {
-            console.log('enter then')
-            console.log(this)
+            // console.log('enter then')
+            // console.log(this)
             this.$emit('OnConfirm', this.item)
             this.visable = false// 关闭dialog弹窗后重置form，不能在这里重置，函数执行完之后才把数据添加的父元素table中
           })
