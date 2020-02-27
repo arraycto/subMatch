@@ -12,12 +12,22 @@
         <el-form-item>
           <el-button type="success" icon="el-icon-search" @click="onSearch">{{ $t("newstwo.searchForm.searchdata.name") }}</el-button>
           <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("newstwo.button.addone") }}</el-button>
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deletenewstwo">删除所选</el-button>
           <span>{{ $t('newstwo.total') }} {{ newstwoList.length }} 条</span>
         </el-form-item>
       </el-form>
       <div class="newstwo-content">
-        <el-table :data="newstwoList" border>
-            <el-table-column
+        <el-table
+          :data="newstwoList"
+          border
+          stripe
+          height="80%"
+          v-loading="loading"
+          element-loading-text="拼命加载中"
+          @cell-mouse-enter="mouseEnter"
+          @selection-change="handleSelectionChange">
+          <el-table-column type="selection" align="center" />
+          <el-table-column
             :label="$t('newstwo.table.id.name')"
             type="index"
             width="55"
@@ -29,6 +39,7 @@
             <el-table-column
               :label="$t('newstwo.table.newstwo_content.name')"
               prop="newstwo_content"
+              width="600"
             />
             <el-table-column
               :label="$t('newstwo.table.newstwo_time.name')"
@@ -40,22 +51,20 @@
               align="center"
               width="200"
             >
-              <template>
+            <template>
                 <el-button
-                  type="danger"
+                  type="primary"
                   size="mini"
-                  class="el-icon-delete"
-                  @click.stop="deletenewstwo()"
-                >删除</el-button>
+                  class="el-icon-edit"
+                  @click.stop="$refs.updateDialog.open(focusedRecord)"
+                >修改</el-button>
               </template>
             </el-table-column>
         </el-table>
-      </div>
-      <div class="paginationDad">
-        <!-- <page-component :total="newstwoList.length" @pageChange="(item)=>handlePageChange(item)" /> -->
         <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <add-dialog ref="addDialog" title="添加新闻" @OnConfirm="(item)=>addOne(item)" />
+        <add-dialog ref="updateDialog" title="修改新闻" @OnConfirm="(item)=>updateOne(item)" />
       </div>
-      <add-dialog ref="addDialog" title="添加新闻" @OnConfirm="(item)=>addOne(item,'post')" />
     </div>
   </div>
 </template>
@@ -73,6 +82,9 @@ export default {
       searchForm: {
         newstwodate: ''
       },
+      loading: true,
+      focusedRecord: {},
+      multipleSelection: [], // 批量删除
       newstwoList: [],
       page: {
         currentPage: 0, // 当前页
@@ -86,12 +98,17 @@ export default {
     this.getnewstwoList()
   },
   methods: {
-    addOne (data, method) {
-      console.log(data, method)
-      this.infoList.push(data)
-      // 发送添加请求
+    handleSelectionChange (val) {
+      this.multipleSelection = val
     },
-    // 获取记录日志
+    mouseEnter (data) {
+      // console.log(data);//这里可以打印每一行的内容
+      // 点击编辑
+      this.dialogFormVisible = true // 显示弹框
+      // let _row = row
+      // 将每一行的数据赋值给dialog弹框
+      this.focusedRecord = Object.assign({}, data) // focusedRecord是弹框的data
+    },
     getnewstwoList () {
       // const item = {
       //   newstwo_content: '新闻部分内容',	// 二级新闻公告竞赛新闻内容
@@ -108,14 +125,39 @@ export default {
         this.page.totalPage = res.data.data.pages
         this.page.totalSize = res.data.data.total
         this.newstwoList = res.data.data.list
-        console.log('进入到菜单所有数据')
+        // console.log('进入到菜单所有数据')
         console.log(res.data.data.list)
-        // this.loading = false
+        this.loading = false
       })
     },
-    onSearch () {
-      console.log(this.searchForm)
-    // 发送搜索请求
+    onSearch () { // 发送搜索请求
+    
+    },
+    addOne (item) {
+      axios.post('/sub/newTwo/addNewsTwo?newstwo_content=' + item.newstwo_content + '&newstwo_time=' + item.newstwo_time +
+      '&create_name=ly' + item.create_name +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '新增成功'
+          })
+        }
+        this.getnewstwoList()
+      })
+    },
+    updateOne (item) {
+      axios.post('/sub/newTwo/updateNewsTwoInfo?newstwo_id=' + item.newstwo_id +
+      '&newstwo_content=' + item.newstwo_content + '&newstwo_time=' + item.newstwo_time +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        }
+        this.getnewstwoList()
+      })
     },
     handlePageChange (item) {
       axios.get('/sub/newTwo/findAllNewsTwo?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
@@ -126,16 +168,39 @@ export default {
         this.newstwoList = res.data.data.list
       })
     },
-    // 删除表格一条数据
     deletenewstwo () {
-      // 发送删除请求
-      this.$confirm('确认删除吗？', '询问', {
-        cancelButtonText: '取消',
-        confirmButtonText: '确认',
-        lockScroll: false,
-        closeOnClickModal: false,
-        type: 'warning'
-      }).catch(() => { return false })
+      if (this.multipleSelection.length) {
+        let ids = [] // 保存选中的数据的id
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          ids.push(this.multipleSelection[i].newstwo_id)
+        }
+        this.$confirm('此操作将永久删除该数据，是否继续？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then((res) => {
+          axios.get('/sub/newTwo/deleteNewsTwoById?newstwo_id=' + ids).then((res) => {
+            if (res.data.code === 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.getnewstwoList()
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '至少选择一项'
+        })
+      }
     }
   }
 }
