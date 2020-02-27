@@ -50,7 +50,19 @@ export default {
                 }
             ]
         }
-    }
+    },
+    mounted () {
+        this.getsucList()
+    },
+    getsucList () {
+      axios.get('/sub/suc/findAllSuc?page=1&pageSize=10').then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.sucs = res.data.data.list
+      })
+    },
 }
 </script>
 

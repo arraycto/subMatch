@@ -1,27 +1,27 @@
 <template>
-        <div class="mtop">
-                    <div class="mlist">
-                        <div class="title">
-                            <a href="/pub/sign">学科竞赛信息</a>
-                            <a href="/pub/sign" class="more">更多>></a>
-                        </div>
-                        <div class="mlistBox">
-                            <div class="mlist_left" v-for="(item, idx) in infos" :key="idx">
-                                <div class="mlist_top">
-                                    <img :src="item.info_icon" width="62" height="62" />
-                                </div>
-                                <div class="mlist_title">{{ item.info_title }}</div>
-                                <div class="mlist_main">{{ item.info_intro }}</div>
-                                <div class="mlist_ah">
-                                    <span>{{ item.info_state }}</span>
-                                </div>
-                                <div class="letGo">
-                                    <a href="/pub/sign">立即查看>></a>
-                                </div>
-                            </div>
-                        </div>
+    <div class="mtop">
+        <div class="mlist">
+            <div class="title">
+                <a href="/pub/sign">学科竞赛信息</a>
+                <a href="/pub/sign" class="more">更多>></a>
+            </div>
+            <div class="mlistBox">
+                <div class="mlist_left" v-for="(item, idx) in infos" :key="idx">
+                    <div class="mlist_top">
+                        <img :src="item.info_icon" width="62" height="62" />
+                    </div>
+                    <div class="mlist_title">{{ item.info_title }}</div>
+                    <div class="mlist_main">{{ item.info_intro }}</div>
+                    <div class="mlist_ah">
+                        <span>{{ item.info_state }}</span>
+                    </div>
+                    <div class="letGo">
+                        <a href="/pub/sign">立即查看>></a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -49,6 +49,21 @@ export default {
                     'info_state': '火热报名中'
                 }
             ]
+        }
+    },
+    mounted () {
+        this.getinfolist()
+    },
+    methods: {
+        getinfolist () {
+            axios.get('/sub/subject/findAllSubject?page=1&pageSize=10').then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.infos = res.data.data.list
+                console.log(res.data.data.list)
+            })
         }
     }
 }

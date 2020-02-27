@@ -22,13 +22,14 @@
                 </div>
             </div>
             
-            <page-component :total="signs.length" @pageChange="(item)=>handlePageChange(item)" />
+            <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
 
         </div>
     </div>
 </template>
 
 <script>
+import axios from 'axios'
 import PageComponent from '@/components/pagination'
 export default {
     components: {
@@ -37,6 +38,12 @@ export default {
     data() {
         return {
             remain_time: '', // 通过js脚本来计算
+            page: {
+                currentPage: 0, // 当前页
+                pageSize: 0, // 每页条数
+                totalSize: 0, // 总条数
+                totalPage: 0 // 总页数
+            },
             signs: [
                 {
                     sign_img: 'http://img4.imgtn.bdimg.com/it/u=2393385984,3451962260&fm=15&gp=0.jpg',
@@ -101,10 +108,29 @@ export default {
             ]
         }
     },
+    mounted() {
+        
+    },
     methods: {
-        handlePageChange() {
-
-        }
+        handlePageChange (item) {
+            axios.get('/sub/sign/findAllSign?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.signList = res.data.data.list
+            })
+        },
+        getsignList () {
+            axios.get('/sub/sign/findAllSign?page=1&pageSize=10').then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.signList = res.data.data.list
+                console.log(res.data.data.list)
+            })
+        },
     },
     computed: {
         cal_remain_time() {

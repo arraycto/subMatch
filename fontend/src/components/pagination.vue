@@ -18,14 +18,10 @@ export default {
     total: {
       required: true,
       type: Number
-    }
-  },
-  data () {
-    return {
-      page: {
-        currentPage: 1,
-        pageSize: 10
-      }
+    },
+    page: {
+      required: true,
+      type: Object
     }
   },
   methods: {

@@ -15,12 +15,14 @@
             </el-timeline>
         </div>
 
-        <page-component :total="lines.length" @pageChange="(item)=>handlePageChange(item)" />
+        <!-- <page-component :total="lines.length" @pageChange="(item)=>handlePageChange(item)" /> -->
+       <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
         
     </div> 
 </template>
 
 <script>
+import axios from 'axios'
 import PageComponent from '@/components/pagination'
 export default {
     components: {
@@ -29,6 +31,12 @@ export default {
     name: 'timeLine',
     data() {
         return {
+            page: {
+                currentPage: 0, // 当前页
+                pageSize: 0, // 每页条数
+                totalSize: 0, // 总条数
+                totalPage: 0 // 总页数
+            },
             lines: [
                 {   
                     'line_year': '2011',
@@ -73,9 +81,28 @@ export default {
             ]
         }
     },
+    mounted() {
+        
+    },
     methods: {
-        handlePageChange() {
-            // 分页
+        handlePageChange (item) {
+            axios.get('/sub/line/findAllLine?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.lineList = res.data.data.list
+            })
+        },
+        getlineList () {
+            axios.get('/sub/line/findAllLine?page=1&pageSize=10').then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.lineList = res.data.data.list
+                console.log(res.data.data.list)
+            })
         }
     }
 }

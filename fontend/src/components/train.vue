@@ -61,9 +61,22 @@ export default {
             ]
         }
     },
+    mounted () {
+        this.gettrainList()
+    },
     methods: {
         toTrain() {
             this.$router.push({path: '/pub/team'})
+        },
+        gettrainList () {
+            axios.get('/sub/train/findAllTrain?page=1&pageSize=10').then((res) => {
+                this.page.currentPage = res.data.data.currentPage
+                this.page.pageSize = res.data.data.size
+                this.page.totalPage = res.data.data.pages
+                this.page.totalSize = res.data.data.total
+                this.trains = res.data.data.list
+                console.log(res.data.data.list)
+            })
         }
     }
 }

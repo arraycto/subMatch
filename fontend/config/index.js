@@ -10,11 +10,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: { // 下面这里是自己加的
-      '/json': { // 匹配所有以'api'开头的请求路径
-        target: 'http://120.24.186.190:12346', // 代理目标的基础路径
+      '/sub': { // 匹配所有以'api'开头的请求路径
+        target: 'http://132.232.67.60:18083/', // 代理目标的基础路径
         changeOrigin: true, // 支持跨域
         pathRewrite: {
-          '^/json':'/json'
+          '^/sub':'/'
         }
       }
     },
