@@ -10,21 +10,31 @@
         </el-form-item>
         <el-form-item>
           <el-button type="success" icon="el-icon-search" @click="onSearch">{{ $t("user.searchForm.searchdata.name") }}</el-button>
-          <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("user.button.addone") }}</el-button>
+          <!-- <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("user.button.addone") }}</el-button> -->
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deleteUser">删除所选</el-button>
           <span>{{ $t('user.total') }} {{ userList.length }} 条</span>
         </el-form-item>
       </el-form>
       <div class="user-content">
-        <el-table :data="userList" border @cell-mouse-enter="mouseEnter">
-            <el-table-column
+        <el-table
+          :data="userList"
+          border
+          stripe
+          height="80%"
+          v-loading="loading"
+          element-loading-text="拼命加载中"
+          @cell-mouse-enter="mouseEnter"
+          @selection-change="handleSelectionChange">
+          <el-table-column type="selection" align="center" />
+          <el-table-column
             :label="$t('user.table.id.name')"
             type="index"
             width="55"
           />
-      <!-- <template scope="scope"> -->
+             <!-- <template scope="scope"> -->
             <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
             <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
-          <!-- </template> -->
+            <!-- </template> -->
             <el-table-column
               :label="$t('user.table.username.name')"
               prop="username"
@@ -37,38 +47,27 @@
               :label="$t('user.table.operate')"
               prop="operation"
               align="center"
-              width="200"
+              width="100"
             >
-              <template>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  class="el-icon-edit"
-                  @click.stop="$refs.updateDialog.open(focusedRecord)"
-                >修改</el-button>
-              </template>
-              <template>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  class="el-icon-delete"
-                  @click.stop="deleteUser()"
-                >删除</el-button>
-              </template>
-            </el-table-column>
+            <template>
+              <el-button
+                type="primary"
+                size="mini"
+                class="el-icon-edit"
+                @click.stop="$refs.updateDialog.open(focusedRecord)"
+              >修改</el-button>
+            </template>
+          </el-table-column>
         </el-table>
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <!-- <add-dialog ref="addDialog" title="添加用户" @OnConfirm="(item)=>addOne(item)" /> -->
+        <add-dialog ref="updateDialog" title="修改用户" @OnConfirm="(item)=>updateOne(item)" />
       </div>
-      <div class="paginationDad">
-        <page-component :total="userList.length" @pageChange="(item)=>handlePageChange(item)" />
-      </div>
-      <add-dialog ref="addDialog" title="添加用户" @OnConfirm="(item)=>addOne(item,'post')" />
-      <add-dialog ref="updateDialog" title="修改用户" @OnConfirm="(item)=>addOne(item,'post')" />
-
     </div>
   </div>
 </template>
 <script>
-// import { getuserList, getclientlist } from "@/api/deliver";
+import axios from 'axios'
 import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
@@ -84,17 +83,23 @@ export default {
       userList: [],
       addForm: {
       },
-      focusedRecord: {}
+      loading: true,
+      focusedRecord: {},
+      multipleSelection: [], // 批量删除
+      page: {
+        currentPage: 0, // 当前页
+        pageSize: 0, // 每页条数
+        totalSize: 0, // 总条数
+        totalPage: 0 // 总页数
+      }
     }
   },
   mounted () {
     this.getuserList()
   },
   methods: {
-    addOne (data, method) {
-      console.log(data, method)
-      this.userList.push(data)
-      // 发送添加请求
+    handleSelectionChange (val) {
+      this.multipleSelection = val
     },
     mouseEnter (data) {
       // console.log(data);//这里可以打印每一行的内容
@@ -103,36 +108,100 @@ export default {
       // let _row = row
       // 将每一行的数据赋值给dialog弹框
       this.focusedRecord = Object.assign({}, data)// focusedRecord是弹框的data
+      console.log('qqq', this.focusedRecord)
     },
     // 获取记录日志
     getuserList () {
-      const item = {
-        password: '密码',
-        username: '用户名'
-      }
+      // const item = {
+      //   password: '密码',
+      //   username: '用户名'
+      // }
 
-      for (let i = 0; i < 5; i++) {
-        this.userList.push(item)
-      }
+      // for (let i = 0; i < 5; i++) {
+      //   this.userList.push(item)
+      // }
+
+      axios.get('/sub/userInfo/findAllUser?page=1&pageSize=10').then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.userList = res.data.data.list
+        // console.log(res.data.data.list)
+        this.loading = false
+      })
     },
     onSearch () {
       console.log(this.searchForm)
     // 发送搜索请求
     },
-    handlePageChange (item) {
-      console.log(item.pageSize, item.currentPage)
-      // 发送分页查询请求
+    // addOne (item) {
+    //   axios.post('/sub/train/addTrain?train_content=' + item.train_content + '&train_time=' + item.train_time +
+    //   '&create_name=ly' + item.create_name +
+    //   '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+    //     if (res.data.code === 200) {
+    //       this.$message({
+    //         type: 'success',
+    //         message: '新增成功'
+    //       })
+    //     }
+    //     this.gettrainList()
+    //   })
+    // },
+    updateOne (item) {
+      axios.post('/sub/userInfo/updateUserInfo?user_id=' + item.user_id +
+      '&username=' + item.username + '&password=' + item.password).then((res) => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '修改成功'
+          })
+        }
+        this.gettrainList()
+      })
     },
-    // 删除表格一条数据
+    handlePageChange (item) {
+      axios.get('/sub/userInfo/findAllUser?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.userList = res.data.data.list
+      })
+    },
     deleteUser () {
-      // 发送删除请求
-      this.$confirm('确认删除吗？', '询问', {
-        cancelButtonText: '取消',
-        confirmButtonText: '确认',
-        lockScroll: false,
-        closeOnClickModal: false,
-        type: 'warning'
-      }).catch(() => { return false })
+      if (this.multipleSelection.length) {
+        let ids = [] // 保存选中的数据的id
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          ids.push(this.multipleSelection[i].user_id)
+        }
+        this.$confirm('此操作将永久删除该数据，是否继续？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then((res) => {
+          axios.get('/sub/userInfo/deleteUsersById?user_id=' + ids).then((res) => {
+            if (res.data.code === 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.gettrainList()
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      } else {
+        this.$message({
+          type: 'warning',
+          message: '至少选择一项'
+        })
+      }
     }
   }
 }
