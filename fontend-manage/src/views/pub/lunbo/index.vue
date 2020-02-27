@@ -3,6 +3,7 @@
     <div class="container">
       <el-form :inline="true">
           <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("lunbo.button.addone") }}</el-button>
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deleteLunbo">删除所选</el-button>
           <span>{{ $t('lunbo.total') }} {{ lunboList.length }} 条</span>
       </el-form>
       <div class="lunbo-content">
@@ -10,7 +11,7 @@
           :data="lunboList"
           border
           stripe>
-            <el-table-column 
+            <el-table-column
             :label="$t('lunbo.table.id.name')"
             type="index" 
             width="55"
@@ -43,49 +44,57 @@
               </template>
             </el-table-column>
         </el-table>
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <add-dialog ref="addDialog" title="新增轮播" @OnConfirm="(item)=>addOne(item)" />
       </div>
-      <div class="paginationDad">
-        <page-component :total="lunboList.length" @pageChange="(item)=>handlePageChange(item)" />
-      </div>
-      <add-dialog ref="addDialog" title="新增轮播" @OnConfirm="(item)=>addOne(item,'post')" />
     </div>
   </div>
 </template>
 <script>
-// import { getlunboList, getclientlist } from "@/api/deliver";
-import AddDialog from "./edit-dialog";
+import axios from 'axios'
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       lunboList: []
     }
   },
-  mounted() {
-    this.getlunboList();
+  mounted () {
+    this.getlunboList()
   },
   methods: {
-    getlunboList() {
-      const item = {
-        lunbo_name: '轮播名称。。。',
-        lunbo_img: '轮播名称。。。'
-      };
+    getlunboList () {
+      // const item = {
+      //   lunbo_name: '轮播名称。。。',
+      //   lunbo_img: '轮播名称。。。'
+      // }
 
-      for (let i = 0; i < 5; i++) {
-        this.lunboList.push(item)
-      }
+      // for (let i = 0; i < 5; i++) {
+      //   this.lunboList.push(item)
+      // }
+      axios.get('/sub/line/findAllLine?page=1&pageSize=10').then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.lunboList = res.data.data.list
+
+        console.log(res.data.data.list)
+        console.log(this.lunboList)
+        // this.loading = false
+      })
     },
-    handlePageChange(item) {
+    handlePageChange (item) {
       console.log(item.pageSize, item.currentPage)
       // 发送分页查询请求
     },
-    //删除表格一条数据
-    deleteLunbo() {
-        //发送删除请求
+    // 删除表格一条数据
+    deleteLunbo () {
       this.$confirm('确认删除吗？', '询问', {
         cancelButtonText: '取消',
         confirmButtonText: '确认',

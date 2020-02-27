@@ -2,7 +2,7 @@
   <div class="page-component">
     <el-pagination
       background
-      layout="total, sizes,prev, pager, next,jumper"
+      layout="sizes,prev, pager, next,jumper"
       :total="total"
       :current-page.sync="page.currentPage"
       :page-size.sync="page.pageSize"
@@ -11,8 +11,8 @@
       @current-change="handleCurrentChange"
     />
   </div>
-
 </template>
+
 <script>
 export default {
   props: {

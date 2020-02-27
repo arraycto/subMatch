@@ -5,12 +5,14 @@
         <el-form-item :label="$t('line.searchForm.line_year.label')">
           <el-input
             v-model="searchForm.line_year"
-            :placeholder="$t('line.searchForm.line_year.placeholder')">
+            :placeholder="$t('line.searchForm.line_year.placeholder')"
+            clearable>
           </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="success" icon="el-icon-search" @click="onSearch">{{ $t("line.searchForm.searchdata.name") }}</el-button>
           <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("line.button.addone") }}</el-button>
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deleteLine">删除所选</el-button>
           <el-button type="warning" icon="el-icon-download" @click="handleDownload">{{ $t("line.button.bulkImport") }}</el-button>
           <span>{{ $t('line.total') }} {{ lineList.length }} 条</span>
         </el-form-item>
@@ -20,20 +22,21 @@
           :data="lineList"
           border
           stripe
+          height="80%"
           v-loading="loading"
           element-loading-text="拼命加载中"
           @cell-mouse-enter="mouseEnter"
           @selection-change="handleSelectionChange">
             <el-table-column type="selection" align="center" />
-            <el-table-column 
-            :label="$t('line.table.id.name')"
-            type="index" 
-            width="55"
-          />
-            <template slot-scope="scope">
+            <el-table-column
+              :label="$t('line.table.id.name')"
+              type="index"
+              width="55"
+            />
+            <!-- <template slot-scope="scope"> -->
             <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
-              <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span>
-            </template>
+              <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
+            <!-- </template> -->
             <el-table-column
               :label="$t('line.table.line_year.name')"
               prop="line_year"
@@ -54,7 +57,7 @@
               :label="$t('line.table.operate')"
               prop="operation"
               align="center"
-              width="200"
+              width="100"
             >
               <template>
                 <el-button
@@ -64,34 +67,26 @@
                   @click.stop="$refs.updateDialog.open(focusedRecord)"
                 >修改</el-button>
               </template>
-              <template>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  class="el-icon-delete"
-                  @click.stop="deleteLine()"
-                >删除</el-button>
-              </template>
             </el-table-column>
         </el-table>
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <add-dialog ref="addDialog" title="添加竞赛历程" @OnConfirm="(item)=>addOne(item)" />
+        <add-dialog ref="updateDialog" title="修改竞赛历程" @OnConfirm="(item)=>updateOne(item)" />
       </div>
-      <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
-      <add-dialog ref="addDialog" title="添加竞赛历程" @OnConfirm="(item)=>addOne(item)" />
-      <add-dialog ref="updateDialog" title="修改竞赛历程" @OnConfirm="(item)=>updateOne(item)" />
     </div>
   </div>
 </template>
 <script>
 // import { getlineList, getclientlist } from "@/api/deliver";
 import axios from 'axios'
-import AddDialog from "./edit-dialog";
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       loading: true,
       searchForm: {
@@ -107,34 +102,34 @@ export default {
         pageSize: 0, // 每页条数
         totalSize: 0, // 总条数
         totalPage: 0 // 总页数
-      },
+      }
     }
   },
-  mounted() {
-    this.getlineList();
+  mounted () {
+    this.getlineList()
   },
   methods: {
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    mouseEnter(data) {
+    mouseEnter (data) {
       // console.log(data);//这里可以打印每一行的内容
       // 点击编辑
       this.dialogFormVisible = true // 显示弹框
       // let _row = row
       // 将每一行的数据赋值给dialog弹框
-      this.focusedRecord = Object.assign({}, data);// focusedRecord是弹框的data
+      this.focusedRecord = Object.assign({}, data) // focusedRecord是弹框的data
     },
     // 获取记录日志
-    getlineList() {
+    getlineList () {
       // const item = {
       //   id: '1',
-      //   line_year: '二级竞赛历程内容。。。',	//二级竞赛历程年份
+      //   line_year: '二级竞赛历程内容。。。', //二级竞赛历程年份
       //   line_title: '二级竞赛历程内容。。。',	//二级竞赛大赛名称
       //   line_img: '二级竞赛历程内容。。。',	//二级竞赛图片
       //   line_intro: '二级竞赛历程内容。。。',	//二级竞赛简介
       // };
-
+      // this.lineList.push(item)
       axios.get('/sub/line/findAllLine?page=1&pageSize=10').then((res) => {
         this.page.currentPage = res.data.data.currentPage
         this.page.pageSize = res.data.data.size
@@ -145,12 +140,12 @@ export default {
         this.loading = false
       })
     },
-    addOne(item) {
-      // console.log(data, method);
+    addOne (item) {
+      console.log(item)
       axios.post('/sub/line/addLine?line_year=' + item.line_year + '&line_title=' + item.line_title +
-      '&line_img=' + item.line_img + '&line_intro=' + line_intro + '&create_name=' + item.create_name +
-      '&update_name=' + item.update_name + '&remarks=' +item.remarks).then((res) => {
-        if (res.data.code === 200){
+      '&line_img=' + item.line_img + '&line_intro=' + item.line_intro + '&create_name=ly' + item.create_name +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
           this.$message({
             type: 'success',
             message: '新增成功'
@@ -161,9 +156,9 @@ export default {
     },
     updateOne (item) {
       axios.post('/sub/line/updateLineInfo?line_year=' + item.line_year + '&line_title=' + item.line_title +
-      '&line_img=' + item.line_img + '&line_intro=' + line_intro + '&create_name=' + item.create_name +
-      '&update_name=' + item.update_name + '&remarks=' +item.remarks).then((res) => {
-        if (res.data.code === 200){
+      '&line_img=' + item.line_img + '&line_intro=' + item.line_intro + '&create_name=ly' + item.create_name +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
           this.$message({
             type: 'success',
             message: '修改成功'
@@ -171,14 +166,13 @@ export default {
         }
         this.getlineList()
       })
-      this.lineList.push(data)
     },
-    onSearch() {
-      console.log(this.searchForm);
+    onSearch () {
+      console.log(this.searchForm)
     // 发送搜索请求
     },
-    handlePageChange(item) {
-      console.log('111111',item)
+    handlePageChange (item) {
+      console.log('111111', item)
       // 发送分页查询请求
       axios.get('/sub/line/findAllLine?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
         this.page.currentPage = res.data.data.currentPage
@@ -188,10 +182,9 @@ export default {
         this.lineList = res.data.data.list
       })
     },
-    handleDownload() {
+    handleDownload () {
       
     },
-    //删除表格一条数据
     deleteLine () {
       if (this.multipleSelection.length) {
         let ids = [] // 保存选中的数据的id
@@ -204,8 +197,7 @@ export default {
           type: 'warning',
           center: true
         }).then((res) => {
-        // 点击确定后发送请求
-          axios.delete('/sub/line/deleteLineById?line_id=1000' + ids).then((res) => {
+          axios.get('/sub/line/deleteLineById?line_id=1000' + ids).then((res) => {
             if (res.data.code === 0) {
               this.$message({
                 type: 'success',

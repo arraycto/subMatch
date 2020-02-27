@@ -3,6 +3,7 @@
     <div class="container">
       <el-form :inline="true">
         <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("menu.button.addone") }}</el-button>
+        <el-button type="danger" size="medium" icon="el-icon-delete" @click="deletemenu">删除所选</el-button>
         <span>{{ $t('menu.total') }} {{ menuList.length }} 条</span>
       </el-form>
       <div class="menu-content">
@@ -10,19 +11,21 @@
         :data="menuList"
         border
         stripe
+        height="80%"
         v-loading="loading"
         element-loading-text="拼命加载中"
         @cell-mouse-enter="mouseEnter"
         @selection-change="handleSelectionChange">
-            <el-table-column 
+          <el-table-column type="selection" align="center" />
+          <el-table-column
             :label="$t('menu.table.id.name')"
-            type="index" 
+            type="index"
             width="55"
           />
-            <template slot-scope="scope">
+            <!-- <template slot-scope="scope"> -->
               <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
-              <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span>
-            </template>
+              <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
+            <!-- </template> -->
             <el-table-column
               :label="$t('menu.table.menu_name.name')"
               prop="menu_name"
@@ -31,7 +34,7 @@
               :label="$t('menu.table.operate')"
               prop="operation"
               align="center"
-              width="200"
+              width="100"
             >
               <template>
                 <el-button
@@ -41,54 +44,46 @@
                   @click.stop="$refs.updateDialog.open(focusedRecord)"
                 >修改</el-button>
               </template>
-              <template>
-                <el-button
-                  type="danger"
-                  size="mini"
-                  class="el-icon-delete"
-                  @click.stop="deletemenu()"
-                >删除</el-button>
-              </template>
             </el-table-column>
         </el-table>
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
+        <add-dialog ref="addDialog" title="新增菜单" @OnConfirm="(item)=>addOne(item)" />
+        <add-dialog ref="updateDialog" title="修改菜单" @OnConfirm="(item)=>updateOne(item)" />
       </div>
-      <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
-      <add-dialog ref="addDialog" title="新增菜单" @OnConfirm="(item)=>addOne(item)" />
-      <add-dialog ref="updateDialog" title="修改菜单" @OnConfirm="(item)=>updateOne(item)" />
     </div>
   </div>
 </template>
 <script>
 import axios from 'axios'
-import AddDialog from "./edit-dialog";
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       menuList: [],
       focusedRecord: {},
-      loading: true,
+      loading: false,
       multipleSelection: [], // 批量删除
       page: {
         currentPage: 0, // 当前页
         pageSize: 0, // 每页条数
         totalSize: 0, // 总条数
         totalPage: 0 // 总页数
-      },
+      }
     }
   },
-  mounted() {
-    this.getmenuList();
+  mounted () {
+    this.getmenuList()
   },
   methods: {
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
-    getmenuList() {
+    getmenuList () {
       // const item = {
       //   menu_name: '菜单名称'
       // };
@@ -102,23 +97,24 @@ export default {
         this.page.totalPage = res.data.data.pages
         this.page.totalSize = res.data.data.total
         this.menuList = res.data.data.list
+        console.log('进入到菜单所有数据')
         console.log(res.data.data.list)
         this.loading = false
       })
     },
-    mouseEnter(data) {
+    mouseEnter (data) {
       // console.log(data);//这里可以打印每一行的内容
       // 点击编辑
       this.dialogFormVisible = true // 显示弹框
       // let _row = row
       // 将每一行的数据赋值给dialog弹框
-      this.focusedRecord = Object.assign({}, data);// focusedRecord是弹框的data
+      this.focusedRecord = Object.assign({}, data)// focusedRecord是弹框的data
     },
-    addOne(item) {
+    addOne (item) {
       // console.log(data, method);
       axios.post('/sub/menu/addMenu?menu_name=' + item.menu_name + '&create_name=' + item.create_name +
-      '&update_name=' + item.update_name + '&remarks=' +item.remarks).then((res) => {
-        if (res.data.code === 200){
+      '&update_name=' + item.update_name + '&remarks=' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
           this.$message({
             type: 'success',
             message: '新增成功'
@@ -129,8 +125,8 @@ export default {
     },
     updateOne (item) {
       axios.post('/sub/menu/updateMenuInfo?menu_id=' + item.menu_id + '&menu_name=' + item.menu_name +
-      '&update_name=' + item.update_name + '&remarks=' +item.remarks).then((res) => {
-        if (res.data.code === 200){
+      '&update_name=' + item.update_name + '&remarks=' + item.remarks).then((res) => {
+        if (res.data.code === 200) {
           this.$message({
             type: 'success',
             message: '修改成功'
@@ -138,9 +134,8 @@ export default {
         }
         this.getmenuList()
       })
-      this.lineList.push(data)
     },
-    //删除表格一条数据
+    // 删除表格一条数据
     deletemenu () {
       if (this.multipleSelection.length) {
         let ids = [] // 保存选中的数据的id

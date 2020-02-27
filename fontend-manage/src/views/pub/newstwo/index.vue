@@ -17,15 +17,15 @@
       </el-form>
       <div class="newstwo-content">
         <el-table :data="newstwoList" border>
-            <el-table-column 
+            <el-table-column
             :label="$t('newstwo.table.id.name')"
-            type="index" 
+            type="index"
             width="55"
           />
-      <!-- <template scope="scope"> -->
-            <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
-            <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
-          <!-- </template> -->
+            <!-- <template scope="scope"> -->
+              <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
+              <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
+            <!-- </template> -->
             <el-table-column
               :label="$t('newstwo.table.newstwo_content.name')"
               prop="newstwo_content"
@@ -52,60 +52,83 @@
         </el-table>
       </div>
       <div class="paginationDad">
-        <page-component :total="newstwoList.length" @pageChange="(item)=>handlePageChange(item)" />
+        <!-- <page-component :total="newstwoList.length" @pageChange="(item)=>handlePageChange(item)" /> -->
+        <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
       </div>
       <add-dialog ref="addDialog" title="添加新闻" @OnConfirm="(item)=>addOne(item,'post')" />
     </div>
   </div>
 </template>
 <script>
-// import { getinfolist, getclientlist } from "@/api/deliver";
-import AddDialog from "./edit-dialog";
+import axios from 'axios'
+import AddDialog from './edit-dialog'
 import PageComponent from '@/components/pagination/index'
 export default {
   components: {
     AddDialog,
     PageComponent
   },
-  data() {
+  data () {
     return {
       searchForm: {
         newstwodate: ''
       },
-      newstwoList: []
+      newstwoList: [],
+      page: {
+        currentPage: 0, // 当前页
+        pageSize: 0, // 每页条数
+        totalSize: 0, // 总条数
+        totalPage: 0 // 总页数
+      }
     }
   },
-  mounted() {
-    this.getnewstwoList();
+  mounted () {
+    this.getnewstwoList()
   },
   methods: {
-    addOne(data, method) {
-      console.log(data, method);
+    addOne (data, method) {
+      console.log(data, method)
       this.infoList.push(data)
       // 发送添加请求
     },
     // 获取记录日志
-    getnewstwoList() {
-      const item = {
-        newstwo_content: '新闻部分内容',	//二级新闻公告竞赛新闻内容
-        newstwo_time: '新闻部分时间',	//二级新闻公告竞赛新闻时间
-      };
+    getnewstwoList () {
+      // const item = {
+      //   newstwo_content: '新闻部分内容',	// 二级新闻公告竞赛新闻内容
+      //   newstwo_time: '新闻部分时间'	// 二级新闻公告竞赛新闻时间
+      // }
 
-      for (let i = 0; i < 5; i++) {
-        this.newstwoList.push(item)
-      }
+      // for (let i = 0; i < 5; i++) {
+      //   this.newstwoList.push(item)
+      // }
+
+      axios.get('/sub/newTwo/findAllNewsTwo?page=1&pageSize=10').then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.newstwoList = res.data.data.list
+        console.log('进入到菜单所有数据')
+        console.log(res.data.data.list)
+        // this.loading = false
+      })
     },
-    onSearch() {
-      console.log(this.searchForm);
+    onSearch () {
+      console.log(this.searchForm)
     // 发送搜索请求
     },
-    handlePageChange(item) {
-      console.log(item.pageSize, item.currentPage)
-      // 发送分页查询请求
+    handlePageChange (item) {
+      axios.get('/sub/newTwo/findAllNewsTwo?page=' + item.currentPage + '&pageSize=' + item.pageSize).then((res) => {
+        this.page.currentPage = res.data.data.currentPage
+        this.page.pageSize = res.data.data.size
+        this.page.totalPage = res.data.data.pages
+        this.page.totalSize = res.data.data.total
+        this.newstwoList = res.data.data.list
+      })
     },
-    //删除表格一条数据
-    deletenewstwo() {
-      //发送删除请求
+    // 删除表格一条数据
+    deletenewstwo () {
+      // 发送删除请求
       this.$confirm('确认删除吗？', '询问', {
         cancelButtonText: '取消',
         confirmButtonText: '确认',
