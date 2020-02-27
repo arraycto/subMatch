@@ -44,7 +44,7 @@ import { mapActions } from 'vuex'
 export default {
   data () {
     const validateNumber = (rule, value, callback) => {
-      var reg = /^[0-9a-zA-Z]{6,16}$/; // 账号长度必须在6-16之间，且不能包含非法字符*#@
+      var reg = /^[0-9a-zA-Z]{6,16}$/ // 账号长度必须在6-16之间，且不能包含非法字符*#@
       if (value === '' || value === undefined) {
         callback(new Error('请输入用户名'))
       } else if (value.length < 6 || value.length > 18) {
@@ -99,35 +99,40 @@ export default {
     login (loginForm) {
       this.$store.dispatch('app/changeLogin')
       console.log('enter login!!')
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          const username = this.loginForm.username
-          const password = this.loginForm.password
-          // 验证成功后发送请求，返回的数据就是information学籍信息
-          axios.get('json/login/direct?number=' + username + '&password=' + password).then(res => {
-            console.log(' login success')
-            console.log(res.data)
-            console.log(res.data.data)
-            if (res.data.code === 0) {
-              this.$message({
-                type: 'success',
-                message: '登录成功'
-              })
-              this.$router.push({name: 'home'})
-              const user = res.data.data.userInfo.username
-              sessionStorage.setItem('number', user)
-              this.setUser({ user })
-            } else {
-              this.$message({
-                type: 'warning',
-                message: '登录失败，用户名或密码错误'
-              })
-            }
+      // this.$refs.loginForm.validate((valid) => {
+      //   if (valid) {
+      const username = this.loginForm.username
+      const password = this.loginForm.password
+      // 验证成功后发送请求，返回的数据就是information学籍信息
+      axios.get('/sub/userInfo/login?username=' + username + '&password=' + password).then(res => {
+        console.log(' login success')
+        console.log(res.data)
+        console.log(res.data.data)
+        if (res.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: '登录成功'
+          })
+          this.$router.push({name: 'home'})
+          const user = res.data.userInfo.username
+          sessionStorage.setItem('username', user)
+          this.setUser({ user })
+        } else if (res.data.msg === '密码错误') {
+          this.$message({
+            type: 'warning',
+            message: '登录失败，密码错误'
           })
         } else {
-          return false
+          this.$message({
+            type: 'warning',
+            message: '登录失败，用户名或密码错误'
+          })
         }
       })
+      //   } else {
+      //     return false
+      //   }
+      // })
     },
     createCode () { // 前端生成验证码
       let code = ''
