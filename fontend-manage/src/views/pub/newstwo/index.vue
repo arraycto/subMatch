@@ -125,8 +125,7 @@ export default {
         this.page.totalPage = res.data.data.pages
         this.page.totalSize = res.data.data.total
         this.newstwoList = res.data.data.list
-        // console.log('进入到菜单所有数据')
-        console.log(res.data.data.list)
+        // console.log(res.data.data.list)
         this.loading = false
       })
     },

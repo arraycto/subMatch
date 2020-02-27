@@ -1,5 +1,5 @@
 <template>
-  <el-dialog id="edit-dialog" title="添加信息" :visible.sync="visable" :lock-scroll="false" center width="60%" top="5.5rem" :close-on-click-modal="false">
+  <el-dialog id="edit-dialog" :title="title" :visible.sync="visable" :lock-scroll="false" center width="60%" top="5.5rem" :close-on-click-modal="false">
     <el-form ref="dataForm" :model="item" :rules="rules" label-width="140px">
       <el-row>
         <el-col :span="24">
@@ -20,7 +20,11 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="报名开始时间:" prop="sign_stime">
-            <el-input v-model="item.sign_stime" placeholder="请输入比赛报名开始时间" />
+            <el-date-picker
+              v-model="item.sign_stime"
+              type="datetime"
+              placeholder="请输入比赛报名开始时间">
+            </el-date-picker>
           </el-form-item>
         </el-col>
       </el-row>
@@ -28,7 +32,11 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="报名结束时间:" prop="sign_etime">
-            <el-input v-model="item.sign_etime" placeholder="请输入比赛报名结束时间" />
+            <el-date-picker
+              v-model="item.sign_etime"
+              type="datetime"
+              placeholder="请输入比赛报名结束时间">
+            </el-date-picker>
           </el-form-item>
         </el-col>
       </el-row>
@@ -36,7 +44,11 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="比赛开始时间:" prop="sign_sm_time">
-            <el-input v-model="item.sign_sm_time" placeholder="请输入比赛开始时间" />
+            <el-date-picker
+              v-model="item.sign_sm_time"
+              type="datetime"
+              placeholder="请输入比赛开始时间">
+            </el-date-picker>
           </el-form-item>
         </el-col>
       </el-row>
@@ -44,7 +56,11 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="比赛结束时间:" prop="sign_em_time">
-            <el-input v-model="item.sign_em_time" placeholder="请输入比赛结束时间" />
+            <el-date-picker
+              v-model="item.sign_em_time"
+              type="datetime"
+              placeholder="请输入比赛结束时间">
+            </el-date-picker>
           </el-form-item>
         </el-col>
       </el-row>
@@ -59,8 +75,8 @@
 
       <el-row>
         <el-col :span="24">
-          <el-form-item label="比赛总时长:" prop="totle_time">
-            <el-input v-model="item.totle_time" placeholder="请输入比赛总时长" />
+          <el-form-item label="比赛总时长:" prop="total_time">
+            <el-input v-model="item.total_time" placeholder="请输入比赛总时长" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -73,25 +89,27 @@
   </el-dialog>
 </template>
 <script>
+import axios from 'axios'
+import { formateDate } from '@/utils/formateDate.js'
 export default {
   props: {
     title: {
       type: String,
-      default: "title"
+      default: 'title'
     }
   },
-  data() {
+  data () {
     return {
       visable: false,
       item: {
-        sign_img: '比赛报名内容。。。',	//二级竞赛报名大赛图片
-        sign_title: '比赛报名内容。。。',	//二级竞赛报名大赛标题
-        sign_stime: '比赛报名内容。。。',	//二级竞赛报名开始时间
-        sign_etime: '比赛报名内容。。。',	//二级竞赛报名结束时间
-        sign_sm_time: '比赛报名内容。。。',	//二级竞赛比赛开始时间
-        sign_em_time: '比赛报名内容。。。',	//二级竞赛比赛结束时间
-        sign_sponsor: '比赛报名内容。。。',	//二级竞赛大赛主办方
-        totle_time: '比赛报名内容。。。',	//二级竞赛大赛比赛总时长
+        sign_img: '',
+        sign_title: '',
+        sign_stime: '',
+        sign_etime: '',
+        sign_sm_time: '',
+        sign_em_time: '',
+        sign_sponsor: '',
+        total_time: ''
       },
       rules: {
         sign_img: [
@@ -115,52 +133,61 @@ export default {
         sign_sponsor: [
           { required: true, message: '请输入比赛主办方', trigger: 'blur' }
         ],
-        totle_time: [
+        total_time: [
           { required: true, message: '请输入比赛总时长', trigger: 'blur' }
         ]
       }
     }
   },
   methods: {
+    formateDate,
     open (item) {
-      this.visable = true;
+      this.visable = true
       if (item === undefined || item === null) {
-        this.item = {};
+        this.item = {}
       } else {
-        this.item = item;
-        this.type = this.item.type;
+        this.item = item
+        this.getSignById()
       }
     },
-    submitForm(dataForm) {
-      console.log('用户提交了信息了');
-      console.log(this.$refs);
+    getSignById () {
+      axios.get('/sub/sign/findSignById?sign_id=' + this.item.sign_id).then((res) => {
+        this.item = res.data.data
+      })
+    },
+    submitForm (dataForm) {
+      // console.log('用户提交了信息了')
+      this.item.sign_stime = this.formateDate(this.item.sign_stime)
+      this.item.sign_etime = this.formateDate(this.item.sign_etime)
+      this.item.sign_sm_time = this.formateDate(this.item.sign_sm_time)
+      this.item.sign_em_time = this.formateDate(this.item.sign_em_time)
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
-          this.$confirm("确认保存吗？", "询问", {
-            cancelButtonText: "取消",
-            cancelButtonClass: "cancelButton",
-            confirmButtonText: "确认",
+          this.$confirm('确认保存吗？', '询问', {
+            cancelButtonText: '取消',
+            cancelButtonClass: 'cancelButton',
+            confirmButtonText: '确认',
             lockScroll: false,
-            type: "warning"
+            type: 'warning'
           }).then(() => {
-            console.log('enter then');
-            console.log(this);
-            this.$emit("OnConfirm", this.item);
-            this.visable = false;
-          });
+            // console.log('enter then')
+            // console.log(this)
+            this.$emit('OnConfirm', this.item)
+            this.visable = false
+          })
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
 
-    resetForm(dataForm) {
+    resetForm (dataForm) {
       this.$nextTick(() => {
-        this.$refs[dataForm].clearValidate();
+        this.$refs[dataForm].clearValidate()
       })
-      this.visable = false;
-      this.totaltime = '';// 这个不是表单元素，而是通过js脚本计算出的，就单独重置
+      this.visable = false
+      this.totaltime = ''// 这个不是表单元素，而是通过js脚本计算出的，就单独重置
     }
 
   }

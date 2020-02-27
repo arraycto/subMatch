@@ -12,7 +12,7 @@
         <el-form-item>
           <el-button type="success" icon="el-icon-search" @click="onSearch">{{ $t("notice.searchForm.searchdata.name") }}</el-button>
           <el-button type="primary" size="medium" icon="el-icon-plus" @click="$refs.addDialog.open(null)">{{ $t("notice.button.addone") }}</el-button>
-           <el-button type="danger" size="medium" icon="el-icon-delete" @click="deletenotice">删除所选</el-button>
+          <el-button type="danger" size="medium" icon="el-icon-delete" @click="deletenotice">删除所选</el-button>
           <span>{{ $t('notice.total') }} {{ noticeList.length }} 条</span>
         </el-form-item>
       </el-form>
@@ -28,10 +28,10 @@
           @selection-change="handleSelectionChange">
             <el-table-column type="selection" align="center" />
             <el-table-column
-            :label="$t('notice.table.id.name')"
-            type="index"
-            width="55"
-          />
+              :label="$t('notice.table.id.name')"
+              type="index"
+              width="55"
+            />
       <!-- <template scope="scope"> -->
             <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
             <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
@@ -124,7 +124,7 @@ export default {
         this.page.totalPage = res.data.data.pages
         this.page.totalSize = res.data.data.total
         this.noticeList = res.data.data.list
-        console.log(res.data.data.list)
+        // console.log(res.data.data.list)
         this.loading = false
       })
     },
@@ -163,7 +163,7 @@ export default {
         this.page.pageSize = res.data.data.size
         this.page.totalPage = res.data.data.pages
         this.page.totalSize = res.data.data.total
-        this.newstwoList = res.data.data.list
+        this.noticeList = res.data.data.list
       })
     },
     deletenotice () {

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog id="edit-dialog" title="新增公告" :visible.sync="visable" :lock-scroll="false" center width="60%" top="5.5rem" :close-on-click-modal="false">
+  <el-dialog id="edit-dialog" :title="title" :visible.sync="visable" :lock-scroll="false" center width="60%" top="5.5rem" :close-on-click-modal="false">
     <el-form ref="dataForm" :model="item" :rules="rules" label-width="120px">
       <el-row>
         <el-row>

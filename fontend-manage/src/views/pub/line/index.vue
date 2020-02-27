@@ -27,47 +27,47 @@
           element-loading-text="拼命加载中"
           @cell-mouse-enter="mouseEnter"
           @selection-change="handleSelectionChange">
-            <el-table-column type="selection" align="center" />
-            <el-table-column
-              :label="$t('line.table.id.name')"
-              type="index"
-              width="55"
-            />
-            <!-- <template slot-scope="scope"> -->
-            <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
-              <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
-            <!-- </template> -->
-            <el-table-column
-              :label="$t('line.table.line_year.name')"
-              prop="line_year"
-            />
-            <el-table-column
-              :label="$t('line.table.line_title.name')"
-              prop="line_title"
-            />
-            <el-table-column
-              :label="$t('line.table.line_intro.name')"
-              prop="line_intro"
-            />
-            <el-table-column
-              :label="$t('line.table.line_img.name')"
-              prop="line_img"
-            />
-            <el-table-column
-              :label="$t('line.table.operate')"
-              prop="operation"
-              align="center"
-              width="100"
-            >
-              <template>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  class="el-icon-edit"
-                  @click.stop="$refs.updateDialog.open(focusedRecord)"
-                >修改</el-button>
-              </template>
-            </el-table-column>
+          <el-table-column type="selection" align="center" />
+          <el-table-column
+            :label="$t('line.table.id.name')"
+            type="index"
+            width="55"
+          />
+          <!-- <template slot-scope="scope"> -->
+          <!-- (当前页 - 1) * 当前显示数据条数 + 当前行数据的索引 + 1 -->
+            <!-- <span>{{ (page.currentPage - 1) * page.pageSize + scope.$index + 1 }}</span> -->
+          <!-- </template> -->
+          <el-table-column
+            :label="$t('line.table.line_year.name')"
+            prop="line_year"
+          />
+          <el-table-column
+            :label="$t('line.table.line_title.name')"
+            prop="line_title"
+          />
+          <el-table-column
+            :label="$t('line.table.line_intro.name')"
+            prop="line_intro"
+          />
+          <el-table-column
+            :label="$t('line.table.line_img.name')"
+            prop="line_img"
+          />
+          <el-table-column
+            :label="$t('line.table.operate')"
+            prop="operation"
+            align="center"
+            width="100"
+          >
+            <template>
+              <el-button
+                type="primary"
+                size="mini"
+                class="el-icon-edit"
+                @click.stop="$refs.updateDialog.open(focusedRecord)"
+              >修改</el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
         <add-dialog ref="addDialog" title="添加竞赛历程" @OnConfirm="(item)=>addOne(item)" />
