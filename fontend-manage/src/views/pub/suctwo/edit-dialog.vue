@@ -41,14 +41,15 @@
   </el-dialog>
 </template>
 <script>
+import axios from 'axios'
 export default {
   props: {
     title: {
       type: String,
-      default: "title"
+      default: 'title'
     }
   },
-  data() {
+  data () {
     return {
       visable: false,
       item: {
@@ -75,42 +76,48 @@ export default {
   },
   methods: {
     open (item) {
-      this.visable = true;
+      this.visable = true
       if (item === undefined || item === null) {
-        this.item = {};
+        this.item = {}
       } else {
-        this.item = item;
+        this.item = item
+        this.getSucTwoById()
       }
     },
-    submitForm(dataForm) {
-      console.log('用户提交了信息了');
-      console.log(this.$refs);
+    getSucTwoById () {
+      axios.get('/sub/train/findSucTwoById?suctwo_id=' + this.item.suctwo_id).then((res) => {
+        this.item = res.data.data
+      })
+    },
+    submitForm (dataForm) {
+      // console.log('用户提交了信息了')
+      // console.log(this.$refs)
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
-          this.$confirm("确认保存吗？", "询问", {
-            cancelButtonText: "取消",
-            cancelButtonClass: "cancelButton",
-            confirmButtonText: "确认",
+          this.$confirm('确认保存吗？', '询问', {
+            cancelButtonText: '取消',
+            cancelButtonClass: 'cancelButton',
+            confirmButtonText: '确认',
             lockScroll: false,
-            type: "warning"
+            type: 'warning'
           }).then(() => {
-            console.log('enter then');
-            console.log(this);
-            this.$emit("OnConfirm", this.item);
-            this.visable = false;// 关闭dialog弹窗后重置form，不能在这里重置，函数执行完之后才把数据添加的父元素table中
-          });
+            // console.log('enter then')
+            // console.log(this)
+            this.$emit('OnConfirm', this.item)
+            this.visable = false// 关闭dialog弹窗后重置form，不能在这里重置，函数执行完之后才把数据添加的父元素table中
+          })
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
 
-    resetForm(dataForm) {
+    resetForm (dataForm) {
       this.$nextTick(() => {
-        this.$refs[dataForm].clearValidate();
+        this.$refs[dataForm].clearValidate()
       })
-      this.visable = false;
+      this.visable = false
     }
 
   }

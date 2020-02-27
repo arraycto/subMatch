@@ -48,7 +48,7 @@
             :label="$t('suc.table.operate')"
             prop="operation"
             align="center"
-            width="200"
+            width="100"
           >
             <template>
               <el-button
@@ -121,14 +121,14 @@ export default {
     },
     getsucList () {
       // const item = {
-      //   suc_video: '成果展示内容。。。',	// 首页成果展示大赛视频
-      //   suc_title: '成果展示内容。。。'	// 首页成果展示标题
+      //   suc_video: '成果展示内容。。。',// 首页成果展示大赛视频
+      //   suc_title: '成果展示内容。。。'// 首页成果展示标题
       // }
 
       // for (let i = 0; i < 5; i++) {
       //   this.sucList.push(item)
       // }
-      axios.get('/sub/suc/findAllSuc?page=1&pageSize=5').then((res) => {
+      axios.get('/sub/suc/findAllSuc?page=1&pageSize=10').then((res) => {
         this.page.currentPage = res.data.data.currentPage
         this.page.pageSize = res.data.data.size
         this.page.totalPage = res.data.data.pages
