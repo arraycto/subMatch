@@ -111,8 +111,8 @@ export default {
     },
     getnewstwoList () {
       // const item = {
-      //   newstwo_content: '新闻部分内容',	// 二级新闻公告竞赛新闻内容
-      //   newstwo_time: '新闻部分时间'	// 二级新闻公告竞赛新闻时间
+      //   newstwo_content: '新闻部分内容',// 二级新闻公告竞赛新闻内容
+      //   newstwo_time: '新闻部分时间'// 二级新闻公告竞赛新闻时间
       // }
 
       // for (let i = 0; i < 5; i++) {
