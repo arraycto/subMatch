@@ -58,14 +58,6 @@
                 @click.stop="$refs.updateDialog.open(focusedRecord)"
               >修改</el-button>
             </template>
-            <template>
-              <el-button
-                type="danger"
-                size="mini"
-                class="el-icon-delete"
-                @click.stop="deleteSuc()"
-              >删除</el-button>
-            </template>
           </el-table-column>
         </el-table>
         <page-component :total="page.totalSize" :page="page" @pageChange="(item)=>handlePageChange(item)" />
@@ -166,6 +158,7 @@ export default {
             type: 'success',
             message: '修改成功'
           })
+          console.log('11', res.data.data)
         }
         this.getsucList()
       })
