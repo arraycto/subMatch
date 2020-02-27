@@ -16,14 +16,15 @@
   </el-dialog>
 </template>
 <script>
+import axios from 'axios'
 export default {
   props: {
     title: {
       type: String,
-      default: "title"
+      default: 'title'
     }
   },
-  data() {
+  data () {
     return {
       visable: false,
       item: {
@@ -38,44 +39,47 @@ export default {
   },
   methods: {
     open (item) {
-      // console.log('1111111');
-      // console.log(item)
-      this.visable = true;
+      this.visable = true
       if (item === undefined || item === null) {
-        this.item = {};
+        this.item = {}
       } else {
-        this.item = item;
+        this.item = item
+        this.getMenuById()
       }
     },
-    submitForm(dataForm) {
-      console.log('用户提交了信息了');
-      console.log(this.$refs);
+    getMenuById () {
+      axios.get('/sub/menu/findMenuById?menu_id=' + this.item.menu_id).then((res) => {
+        this.item = res.data.data
+      })
+    },
+    submitForm (dataForm) {
+      console.log('用户提交了信息了')
       this.$refs.dataForm.validate((valid) => {
         if (valid) {
-          this.$confirm("确认保存吗？", "询问", {
-            cancelButtonText: "取消",
-            cancelButtonClass: "cancelButton",
-            confirmButtonText: "确认",
+          this.$confirm('确认保存吗？', '询问', {
+            cancelButtonText: '取消',
+            cancelButtonClass: 'cancelButton',
+            confirmButtonText: '确认',
             lockScroll: false,
-            type: "warning"
+            type: 'warning'
           }).then(() => {
-            console.log('enter then');
-            console.log(this);
-            this.$emit("OnConfirm", this.item);
-            this.visable = false;
+            console.log('enter then')
+            console.log(this)
+            this.$emit('OnConfirm', this.item)
+            this.visable = false
           });
         } else {
-          console.log('error submit!!');
-          return false;
+          console.log('error submit!!')
+          return false
         }
-      });
+      })
     },
 
-    resetForm(dataForm) {
+    resetForm (dataForm) {
       this.$nextTick(() => {
-        this.$refs[dataForm].clearValidate();
+        this.$refs[dataForm].clearValidate()
       })
-      this.visable = false;
+      this.visable = false
     }
 
   }

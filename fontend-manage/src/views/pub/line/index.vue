@@ -155,7 +155,7 @@ export default {
       })
     },
     updateOne (item) {
-      axios.post('/sub/line/updateLineInfo?line_year=' + item.line_year + '&line_title=' + item.line_title +
+      axios.post('/sub/line/updateLineInfo?line_id=' + item.line_id + '&line_year=' + item.line_year + '&line_title=' + item.line_title +
       '&line_img=' + item.line_img + '&line_intro=' + item.line_intro + '&create_name=ly' + item.create_name +
       '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
         if (res.data.code === 200) {
@@ -163,6 +163,7 @@ export default {
             type: 'success',
             message: '修改成功'
           })
+          console.log('进入到竞赛历程修改', res.data.data.list)
         }
         this.getlineList()
       })
@@ -197,8 +198,8 @@ export default {
           type: 'warning',
           center: true
         }).then((res) => {
-          axios.get('/sub/line/deleteLineById?line_id=1000' + ids).then((res) => {
-            if (res.data.code === 0) {
+          axios.get('/sub/line/deleteLineById?line_id=' + ids).then((res) => {
+            if (res.data.code === 200) {
               this.$message({
                 type: 'success',
                 message: '删除成功'

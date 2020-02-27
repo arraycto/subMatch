@@ -66,7 +66,7 @@ export default {
     return {
       menuList: [],
       focusedRecord: {},
-      loading: false,
+      loading: true,
       multipleSelection: [], // 批量删除
       page: {
         currentPage: 0, // 当前页
@@ -111,9 +111,9 @@ export default {
       this.focusedRecord = Object.assign({}, data)// focusedRecord是弹框的data
     },
     addOne (item) {
-      // console.log(data, method);
-      axios.post('/sub/menu/addMenu?menu_name=' + item.menu_name + '&create_name=' + item.create_name +
-      '&update_name=' + item.update_name + '&remarks=' + item.remarks).then((res) => {
+      // console.log(item)
+      axios.post('/sub/menu/addMenu?menu_name=' + item.menu_name + '&create_name=ly' + item.create_name +
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
@@ -125,7 +125,7 @@ export default {
     },
     updateOne (item) {
       axios.post('/sub/menu/updateMenuInfo?menu_id=' + item.menu_id + '&menu_name=' + item.menu_name +
-      '&update_name=' + item.update_name + '&remarks=' + item.remarks).then((res) => {
+      '&update_name=ly' + item.update_name + '&remarks=test' + item.remarks).then((res) => {
         if (res.data.code === 200) {
           this.$message({
             type: 'success',
@@ -147,15 +147,14 @@ export default {
           cancelButtonText: '取消',
           type: 'warning',
           center: true
-        }).then((res) => {
-        // 这里的接口名字不对
-          axios.delete('/sub/menu/deleteMenuById?user_id=' + ids).then((res) => {
-            if (res.data.code === 0) {
+        }).then((res) => { // 这里的接口名字叫user_id？
+          axios.get('/sub/menu/deleteMenuById?user_id=' + ids).then((res) => {
+            if (res.data.code === 200) {
               this.$message({
                 type: 'success',
                 message: '删除成功'
               })
-              this.getlineList()
+              this.getmenuList()
             }
           })
         }).catch(() => {
